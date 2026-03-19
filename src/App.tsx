@@ -53,7 +53,7 @@ const Sidebar = ({ activeTab, setActiveTab }: { activeTab: string; setActiveTab:
       <nav className="space-y-2 flex-1">
         {[
           { id: 'dashboard', icon: LayoutDashboard, label: t('nav.home') },
-          { id: 'create', icon: Zap, label: 'AI 생성' },
+          { id: 'create', icon: Zap, label: t('nav.features') },
           { id: 'analytics', icon: BarChart3, label: t('nav.analytics') },
           { id: 'settings', icon: Settings, label: t('nav.settings') },
         ].map((item) => (
@@ -129,15 +129,15 @@ const EmptyState = ({ onCreateClick }: { onCreateClick: () => void }) => (
       <div className="w-24 h-24 bg-gradient-to-br from-[#1E6BFF]/20 to-[#4C8DFF]/10 rounded-full flex items-center justify-center mb-8 mx-auto shadow-[0_0_40px_rgba(30,107,255,0.3)]">
         <Video className="w-12 h-12 text-[#1E6BFF]" />
       </div>
-      <h3 className="text-2xl font-bold text-white mb-4">첫 번째 캠페인을 시작하세요</h3>
-      <p className="text-[#9FB0C3] text-lg mb-3">글로벌 8개 언어 자동 생성</p>
-      <p className="text-[#9FB0C3] mb-8">AI가 마케팅을 대신합니다</p>
+      <h3 className="text-2xl font-bold text-white mb-4">{t('dashboard.emptyTitle')}</h3>
+      <p className="text-[#9FB0C3] text-lg mb-3">{t('dashboard.emptySubtitle1')}</p>
+      <p className="text-[#9FB0C3] mb-8">{t('dashboard.emptySubtitle2')}</p>
       <button 
         onClick={onCreateClick}
         className="bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white px-8 py-4 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] transition-all flex items-center gap-2 mx-auto group"
       >
         <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-        영상 생성하기
+        {t('dashboard.emptyButton')}
         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
       </button>
     </motion.div>
@@ -448,7 +448,7 @@ function AppContent() {
                     className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all group"
                   >
                     <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    수집 및 판매 시작
+                    {t('buttons.collectAndSell')}
                   </button>
                   <button 
                     onClick={() => {
@@ -581,13 +581,13 @@ function AppContent() {
                           }`}
                         >
                           <Sparkles className={`w-3 h-3 ${isAutomationMode ? 'text-emerald-400' : 'text-[#9FB0C3]'}`} />
-                          {isAutomationMode ? 'Full Automation ON' : 'Full Automation OFF'}
+                          {isAutomationMode ? t('create.automationOn') : t('create.automationOff')}
                         </button>
                       </div>
                       <textarea
                         value={productInput}
                         onChange={(e) => setProductInput(e.target.value)}
-                        placeholder={isAutomationMode ? "Enter a keyword (e.g., 'Wireless Earbuds') to start full automation..." : t('create.placeholder')}
+                        placeholder={isAutomationMode ? t('create.placeholderAuto') : t('create.placeholder')}
                         className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-lg text-white placeholder:text-[#9FB0C3]/50 focus:ring-2 focus:ring-[#1E6BFF]/50 focus:border-[#1E6BFF]/50 outline-none transition-all resize-none backdrop-blur-xl"
                       />
                     </div>
@@ -595,14 +595,12 @@ function AppContent() {
                       <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20 space-y-3 backdrop-blur-xl">
                         <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4" />
-                          Automation Workflow
+                          {t('create.automationTitle')}
                         </p>
                         <ul className="text-[11px] text-emerald-300 space-y-1 font-medium">
-                          <li>• Automatic Wholesale Collection (Best Price)</li>
-                          <li>• AI Product Analysis & Viral Scripting</li>
-                          <li>• Auto-Registration to 11st, Gmarket, etc.</li>
-                          <li>• AI Marketing Video Generation</li>
-                          <li>• Global SNS & China Platform Distribution</li>
+                          {t('create.automationSteps').map((step: string, index: number) => (
+                            <li key={index}>• {step}</li>
+                          ))}
                         </ul>
                       </div>
                     )}
@@ -613,7 +611,7 @@ function AppContent() {
                         isAutomationMode ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]' : 'bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white shadow-[0_0_30px_rgba(30,107,255,0.3)] hover:shadow-[0_0_40px_rgba(30,107,255,0.5)]'
                       }`}
                     >
-                      {isAutomationMode ? '수집 및 판매 시작' : t('buttons.next')}
+                      {isAutomationMode ? t('buttons.collectAndSell') : t('buttons.next')}
                       <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
@@ -657,7 +655,7 @@ function AppContent() {
                               isAutomationMode ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white shadow-[0_0_30px_rgba(30,107,255,0.3)]'
                             }`}
                           >
-                            {isAutomationMode ? '수집 및 판매 자동화 실행' : t('buttons.start')}
+                            {isAutomationMode ? t('buttons.collectAndSell') : t('buttons.start')}
                           </button>
                         </div>
                       )}
