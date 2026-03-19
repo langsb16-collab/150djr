@@ -2,7 +2,7 @@ export type Locale = 'ko' | 'en' | 'zh' | 'ja' | 'ru' | 'hi' | 'pt-BR' | 'id';
 
 export const translations: Record<Locale, any> = {
   en: {
-    nav: { home: "Home", features: "AI Generation", analytics: "Analytics", settings: "Settings", language: "Language" },
+    nav: { home: "Home", features: "AI Generation", analytics: "Analytics", settings: "Settings", language: "Language", faq: "FAQ" },
     buttons: { 
       createVideo: "Create Video", 
       collectAndSell: "Start Collection & Sales",
@@ -108,7 +108,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   ko: {
-    nav: { home: "홈", features: "AI 생성", analytics: "분석", settings: "설정", language: "언어" },
+    nav: { home: "홈", features: "AI 생성", analytics: "분석", settings: "설정", language: "언어", faq: "FAQ" },
     buttons: { 
       createVideo: "영상 생성", 
       collectAndSell: "수집 및 판매 시작",
@@ -214,7 +214,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   zh: {
-    nav: { home: "首页", features: "AI 生成", analytics: "分析", settings: "设置", language: "语言" },
+    nav: { home: "首页", features: "AI 生成", analytics: "分析", settings: "设置", language: "语言", faq: "常见问题" },
     buttons: { 
       createVideo: "创建视频", 
       collectAndSell: "开始收集和销售",
@@ -320,7 +320,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   ja: {
-    nav: { home: "ホーム", features: "AI 生成", analytics: "分析", settings: "設定", language: "言語" },
+    nav: { home: "ホーム", features: "AI 生成", analytics: "分析", settings: "設定", language: "言語", faq: "FAQ" },
     buttons: { 
       createVideo: "動画作成", 
       collectAndSell: "収集と販売を開始",
@@ -426,7 +426,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   ru: {
-    nav: { home: "Главная", features: "AI генерация", analytics: "Аналитика", settings: "Настройки", language: "Язык" },
+    nav: { home: "Главная", features: "AI генерация", analytics: "Аналитика", settings: "Настройки", language: "Язык", faq: "FAQ" },
     buttons: { 
       createVideo: "Создать видео", 
       collectAndSell: "Начать сбор и продажи",
@@ -532,7 +532,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   hi: {
-    nav: { home: "होम", features: "AI जनरेशन", analytics: "विश्लेषण", settings: "सेटिंग्स", language: "भाषा" },
+    nav: { home: "होम", features: "AI जनरेशन", analytics: "विश्लेषण", settings: "सेटिंग्स", language: "भाषा", faq: "FAQ" },
     buttons: { 
       createVideo: "वीडियो बनाएं", 
       collectAndSell: "संग्रह और बिक्री शुरू करें",
@@ -638,7 +638,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   'pt-BR': {
-    nav: { home: "Início", features: "Geração AI", analytics: "Análise", settings: "Configurações", language: "Idioma" },
+    nav: { home: "Início", features: "Geração AI", analytics: "Análise", settings: "Configurações", language: "Idioma", faq: "FAQ" },
     buttons: { 
       createVideo: "Criar Vídeo", 
       collectAndSell: "Iniciar Coleta e Vendas",
@@ -744,7 +744,7 @@ export const translations: Record<Locale, any> = {
     ]
   },
   id: {
-    nav: { home: "Beranda", features: "Generasi AI", analytics: "Analitik", settings: "Pengaturan", language: "Bahasa" },
+    nav: { home: "Beranda", features: "Generasi AI", analytics: "Analitik", settings: "Pengaturan", language: "Bahasa", faq: "FAQ" },
     buttons: { 
       createVideo: "Buat Video", 
       collectAndSell: "Mulai Pengumpulan & Penjualan",
