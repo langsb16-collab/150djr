@@ -14,20 +14,18 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-  Volume2,
-  Type as TypeIcon,
-  Image as ImageIcon,
   TrendingUp,
-  Users,
-  Clock,
+  TrendingDown,
   ExternalLink,
   Shield,
   Bell,
   User,
-  Key
+  Key,
+  Zap,
+  Target
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell, PieChart, Pie } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Project, Scene, Script } from './types';
 import { analyzeProduct, generateMarketingScript, generateSceneImage, generateVoiceover } from './lib/gemini';
 import { runFullAutomation } from './lib/automation';
@@ -37,53 +35,114 @@ import { ChatWidget } from './components/ChatWidget';
 import { AIWidget } from './components/AIWidget';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 
-// --- Components ---
+// --- Dark Mode Glass Components ---
 
 const Sidebar = ({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: (t: string) => void }) => {
   const { t } = useLanguage();
   return (
-    <div className="w-64 bg-[#1428A0] border-r border-white/10 h-screen flex flex-col p-6 fixed left-0 top-0">
-      <div className="flex items-center gap-3 mb-12">
-        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-          <Sparkles className="text-[#1428A0] w-6 h-6" />
+    <div className="w-64 bg-[#0B1220] border-r border-white/10 h-screen flex flex-col p-6 fixed left-0 top-0 backdrop-blur-xl">
+      {/* Logo with Glow */}
+      <div className="flex items-center gap-3 mb-12 group">
+        <div className="w-10 h-10 bg-gradient-to-br from-[#1E6BFF] to-[#4C8DFF] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(30,107,255,0.5)] group-hover:shadow-[0_0_30px_rgba(30,107,255,0.7)] transition-all">
+          <Sparkles className="text-white w-6 h-6" />
         </div>
         <h1 className="text-xl font-bold tracking-tight text-white">AdBrain AI</h1>
       </div>
       
+      {/* Navigation */}
       <nav className="space-y-2 flex-1">
         {[
           { id: 'dashboard', icon: LayoutDashboard, label: t('nav.home') },
-          { id: 'create', icon: Plus, label: t('nav.features') },
+          { id: 'create', icon: Zap, label: 'AI 생성' },
           { id: 'analytics', icon: BarChart3, label: t('nav.analytics') },
           { id: 'settings', icon: Settings, label: t('nav.settings') },
         ].map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
               activeTab === item.id 
-                ? 'bg-white/20 text-white shadow-sm' 
-                : 'text-white/60 hover:text-white hover:bg-white/10'
+                ? 'bg-[#1E6BFF]/20 text-white shadow-[0_0_12px_rgba(30,107,255,0.3)] border border-[#1E6BFF]/30' 
+                : 'text-[#9FB0C3] hover:text-white hover:bg-white/5 hover:shadow-[0_0_8px_rgba(30,107,255,0.2)]'
             }`}
           >
-            <item.icon className="w-5 h-5" />
+            <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-[#1E6BFF]' : ''}`} />
             <span className="font-medium">{item.label}</span>
           </button>
         ))}
       </nav>
 
+      {/* Pro Upgrade Card */}
       <div className="mt-auto pt-6 border-t border-white/10">
-        <div className="bg-white/10 rounded-2xl p-4 border border-white/5">
-          <p className="text-xs text-white/50 mb-2 uppercase tracking-widest font-bold">{t('sidebar.plan')}</p>
-          <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full bg-white w-full" />
+        <div className="bg-gradient-to-br from-[#1E6BFF]/10 to-[#4C8DFF]/5 rounded-2xl p-4 border border-[#1E6BFF]/20 backdrop-blur-lg relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1E6BFF]/5 to-transparent"></div>
+          <div className="relative">
+            <p className="text-xs text-[#9FB0C3] mb-2 uppercase tracking-widest font-bold">{t('sidebar.plan')}</p>
+            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-2">
+              <div className="h-full bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] w-3/4 rounded-full shadow-[0_0_8px_rgba(30,107,255,0.5)]" />
+            </div>
+            <p className="text-[10px] text-[#9FB0C3] mt-2">{t('sidebar.remaining')}</p>
           </div>
-          <p className="text-[10px] text-white/40 mt-2">{t('sidebar.remaining')}</p>
         </div>
       </div>
     </div>
   );
 };
+
+const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl shadow-[0_0_30px_rgba(30,107,255,0.1)] ${className}`}>
+    {children}
+  </div>
+);
+
+const KPICard = ({ label, value, change, icon: Icon, trend }: any) => (
+  <GlassCard className="p-6 hover:shadow-[0_0_40px_rgba(30,107,255,0.2)] transition-all group">
+    <div className="flex items-start justify-between mb-4">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${
+        trend === 'up' ? 'from-emerald-500/20 to-emerald-600/10' : 'from-[#1E6BFF]/20 to-[#4C8DFF]/10'
+      }`}>
+        <Icon className={`w-6 h-6 ${trend === 'up' ? 'text-emerald-400' : 'text-[#1E6BFF]'}`} />
+      </div>
+      <div className={`flex items-center gap-1 text-sm font-bold ${
+        trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-red-400' : 'text-[#9FB0C3]'
+      }`}>
+        {change && (
+          <>
+            {trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            {change}
+          </>
+        )}
+      </div>
+    </div>
+    <p className="text-[#9FB0C3] text-sm font-medium mb-2">{label}</p>
+    <p className="text-white text-3xl font-black tracking-tight">{value}</p>
+  </GlassCard>
+);
+
+const EmptyState = ({ onCreateClick }: { onCreateClick: () => void }) => (
+  <GlassCard className="h-[500px] flex flex-col items-center justify-center text-center p-12">
+    <motion.div
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="w-24 h-24 bg-gradient-to-br from-[#1E6BFF]/20 to-[#4C8DFF]/10 rounded-full flex items-center justify-center mb-8 mx-auto shadow-[0_0_40px_rgba(30,107,255,0.3)]">
+        <Video className="w-12 h-12 text-[#1E6BFF]" />
+      </div>
+      <h3 className="text-2xl font-bold text-white mb-4">첫 번째 캠페인을 시작하세요</h3>
+      <p className="text-[#9FB0C3] text-lg mb-3">글로벌 8개 언어 자동 생성</p>
+      <p className="text-[#9FB0C3] mb-8">AI가 마케팅을 대신합니다</p>
+      <button 
+        onClick={onCreateClick}
+        className="bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white px-8 py-4 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] transition-all flex items-center gap-2 mx-auto group"
+      >
+        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+        영상 생성하기
+        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+      </button>
+    </motion.div>
+  </GlassCard>
+);
 
 const VideoPreview = ({ scenes }: { scenes: Scene[] }) => {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
@@ -108,7 +167,7 @@ const VideoPreview = ({ scenes }: { scenes: Scene[] }) => {
   const currentScene = scenes[currentSceneIndex];
 
   return (
-    <div className="relative aspect-[9/16] w-full max-w-[360px] bg-black rounded-[32px] overflow-hidden shadow-2xl border-[8px] border-zinc-900 mx-auto">
+    <div className="relative aspect-[9/16] w-full max-w-[360px] bg-black rounded-[32px] overflow-hidden shadow-2xl border-[8px] border-[#0B1220] mx-auto">
       <AnimatePresence mode="wait">
         {currentScene && (
           <motion.div
@@ -127,15 +186,13 @@ const VideoPreview = ({ scenes }: { scenes: Scene[] }) => {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                <ImageIcon className="w-12 h-12 text-zinc-600" />
+              <div className="w-full h-full bg-[#0B1220] flex items-center justify-center">
+                <Video className="w-12 h-12 text-[#1E6BFF]" />
               </div>
             )}
             
-            {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
             
-            {/* Subtitles */}
             <div className="absolute bottom-20 left-6 right-6 text-center">
               <motion.p
                 initial={{ y: 20, opacity: 0 }}
@@ -149,7 +206,6 @@ const VideoPreview = ({ scenes }: { scenes: Scene[] }) => {
         )}
       </AnimatePresence>
 
-      {/* Controls */}
       <div className="absolute bottom-6 left-0 right-0 flex justify-center">
         <button 
           onClick={() => setIsPlaying(!isPlaying)}
@@ -171,280 +227,13 @@ const VideoPreview = ({ scenes }: { scenes: Scene[] }) => {
   );
 };
 
-const AnalyticsView = () => {
-  const { t } = useLanguage();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 800);
-  };
-
-  const data = [
-    { name: 'Mon', views: 4000, engagement: 2400 },
-    { name: 'Tue', views: 3000, engagement: 1398 },
-    { name: 'Wed', views: 2000, engagement: 9800 },
-    { name: 'Thu', views: 2780, engagement: 3908 },
-    { name: 'Fri', views: 1890, engagement: 4800 },
-    { name: 'Sat', views: 2390, engagement: 3800 },
-    { name: 'Sun', views: 3490, engagement: 4300 },
-  ];
-
-  const platformData = [
-    { name: 'TikTok', value: 45, color: '#FF0050' },
-    { name: 'Instagram', value: 30, color: '#E1306C' },
-    { name: 'YouTube', value: 15, color: '#FF0000' },
-    { name: 'Facebook', value: 10, color: '#1877F2' },
-  ];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-8"
-    >
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t('analytics.title')}</h2>
-          <p className="text-zinc-500 text-sm">{t('analytics.subtitle')}</p>
-        </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium hover:bg-zinc-50 transition-colors flex items-center gap-2"
-          >
-            <Loader2 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : 'opacity-0'}`} />
-            Refresh
-          </button>
-          <button className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium hover:bg-zinc-50 transition-colors">Last 7 Days</button>
-          <button className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium hover:bg-zinc-50 transition-colors">Export PDF</button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-2 bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm">
-          <h3 className="text-lg font-bold mb-6">{t('analytics.viewsOverTime')}</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1428A0" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#1428A0" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                />
-                <Area type="monotone" dataKey="views" stroke="#1428A0" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm">
-          <h3 className="text-lg font-bold mb-6">{t('analytics.platformDistribution')}</h3>
-          <div className="space-y-6">
-            {platformData.map((platform) => (
-              <div key={platform.name} className="space-y-2">
-                <div className="flex justify-between text-sm font-medium">
-                  <span>{platform.name}</span>
-                  <span className="text-zinc-500">{platform.value}%</span>
-                </div>
-                <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${platform.value}%` }}
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: platform.color }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-8">
-        <div className="bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-            <TrendingUp className="text-blue-600 w-8 h-8" />
-          </div>
-          <h4 className="text-3xl font-black">12.4%</h4>
-          <p className="text-zinc-500 text-sm mt-1">{t('analytics.engagementRate')}</p>
-          <p className="text-emerald-500 text-xs font-bold mt-2">↑ 2.1% from last week</p>
-        </div>
-
-        <div className="col-span-2 bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm">
-          <h3 className="text-lg font-bold mb-6">{t('analytics.topPerforming')}</h3>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-4 p-3 hover:bg-zinc-50 rounded-2xl transition-colors cursor-pointer">
-                <div className="w-16 h-10 bg-zinc-100 rounded-lg overflow-hidden">
-                  <img src={`https://picsum.photos/seed/ad${i}/100/60`} className="w-full h-full object-cover" alt="Thumb" referrerPolicy="no-referrer" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-sm truncate">Viral Product Ad #{i}</p>
-                  <p className="text-zinc-400 text-xs">Generated 2 days ago</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-sm">{(4.2 - i * 0.5).toFixed(1)}k views</p>
-                  <p className="text-emerald-500 text-xs font-bold">{(5.2 - i * 0.3).toFixed(1)}% CTR</p>
-                </div>
-                <ExternalLink className="w-4 h-4 text-zinc-300" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-const SettingsView = () => {
-  const { t, locale, setLocale } = useLanguage();
-  const [isSaving, setIsSaving] = useState(false);
-  
-  const handleSave = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      alert(t('settings.save') + " " + "Success!");
-    }, 1000);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl space-y-8"
-    >
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">{t('settings.title')}</h2>
-        <p className="text-zinc-500 text-sm">{t('settings.subtitle')}</p>
-      </div>
-
-      <div className="grid grid-cols-4 gap-8">
-        <div className="col-span-1 space-y-2">
-          {[
-            { id: 'profile', icon: User, label: t('settings.profile') },
-            { id: 'api', icon: Key, label: t('settings.apiKeys') },
-            { id: 'notifications', icon: Bell, label: t('settings.notifications') },
-            { id: 'security', icon: Shield, label: 'Security' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
-                item.id === 'profile' ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:bg-zinc-100'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="col-span-3 space-y-6">
-          <div className="bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm space-y-8">
-            <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-zinc-100 rounded-full flex items-center justify-center border-4 border-white shadow-lg overflow-hidden">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" />
-              </div>
-              <div>
-                <h4 className="text-xl font-bold">Marketer Mark</h4>
-                <p className="text-zinc-500 text-sm">Pro Plan Member</p>
-                <button className="text-[#1428A0] text-xs font-bold mt-2 hover:underline">Change Avatar</button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Full Name</label>
-                <input type="text" defaultValue="Marketer Mark" className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1428A0]/20" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Email Address</label>
-                <input type="email" defaultValue="mark@adbrain.ai" className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1428A0]/20" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('settings.language')}</label>
-              <select 
-                value={locale}
-                onChange={(e) => setLocale(e.target.value as any)}
-                className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1428A0]/20"
-              >
-                <option value="en">English</option>
-                <option value="ko">한국어</option>
-                <option value="zh">中文</option>
-                <option value="ja">日本語</option>
-              </select>
-            </div>
-
-            <div className="flex justify-end pt-4">
-              <button 
-                onClick={handleSave}
-                disabled={isSaving}
-                className="bg-[#1428A0] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#0d1b6e] transition-all shadow-lg shadow-blue-900/10 disabled:opacity-50 flex items-center gap-2"
-              >
-                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t('settings.save')}
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold">{t('settings.apiKeys')}</h3>
-              <button className="text-xs font-bold text-[#1428A0]">+ Add New Key</button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { name: 'Gemini API', status: 'Active', key: '••••••••••••••••' },
-                { name: 'TikTok API', status: 'Connected', key: '••••••••••••••••' },
-                { name: 'Instagram API', status: 'Connected', key: '••••••••••••••••' },
-              ].map((api) => (
-                <div key={api.name} className="flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
-                  <div>
-                    <p className="font-bold text-sm">{api.name}</p>
-                    <p className="text-zinc-400 text-xs font-mono mt-1">{api.key}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-                    <span className="text-xs font-bold text-emerald-600">{api.status}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// --- Main App ---
-
-export default function App() {
-  return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
-  );
-}
-
+// Main App Content
 function AppContent() {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Creation Flow State
   const [step, setStep] = useState(1);
   const [productInput, setProductInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -554,7 +343,6 @@ function AppContent() {
       setCurrentProject(project);
       setProjects(prev => [project, ...prev]);
       
-      // Save to server
       await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -575,7 +363,7 @@ function AppContent() {
     
     setIsUploading(true);
     try {
-      const videoUrl = currentProject.scenes[0].imageUrl; // In a real app, this would be the compiled video URL
+      const videoUrl = currentProject.scenes[0].imageUrl;
       const res = await fetch('/api/social/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -629,13 +417,14 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans">
+    <div className="min-h-screen bg-[#0B1220] text-white">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      <main className="ml-64 p-6">
-        <header className="flex justify-end mb-6">
+      <main className="ml-64 p-8">
+        <header className="flex justify-end mb-8">
           <LanguageSwitcher />
         </header>
+
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div
@@ -644,10 +433,10 @@ function AppContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="flex justify-between items-end mb-6">
+              <div className="flex justify-between items-end mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight">{t('dashboard.title')}</h2>
-                  <p className="text-zinc-500 text-sm">{t('dashboard.subtitle')}</p>
+                  <h2 className="text-3xl font-black tracking-tight text-white mb-2">{t('dashboard.title')}</h2>
+                  <p className="text-[#9FB0C3] text-base">{t('dashboard.subtitle')}</p>
                 </div>
                 <div className="flex gap-3">
                   <button 
@@ -656,9 +445,9 @@ function AppContent() {
                       setIsAutomationMode(true);
                       setStep(1);
                     }}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all group"
                   >
-                    <Sparkles className="w-5 h-5" />
+                    <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                     수집 및 판매 시작
                   </button>
                   <button 
@@ -667,80 +456,98 @@ function AppContent() {
                       setIsAutomationMode(false);
                       setStep(1);
                     }}
-                    className="bg-zinc-950 hover:bg-zinc-800 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-zinc-950/20 transition-all active:scale-95"
+                    className="bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all group"
                   >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
                     {t('buttons.createVideo')}
                   </button>
                 </div>
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-4 gap-4 mb-8">
-                {[
-                  { label: t('stats.totalVideos'), value: projects.length, icon: Video, color: 'bg-[#1428A0]' },
-                  { label: t('stats.totalViews'), value: '12.4k', icon: BarChart3, color: 'bg-[#1E88E5]' },
-                  { label: t('stats.avgCtr'), value: '4.2%', icon: Sparkles, color: 'bg-[#FF7A00]' },
-                  { label: t('stats.conversions'), value: '128', icon: CheckCircle2, color: 'bg-emerald-500' },
-                ].map((stat, i) => (
-                  <div key={i} className="bg-white p-4 rounded-2xl border border-zinc-200 shadow-sm">
-                    <div className={`${stat.color} w-8 h-8 rounded-lg flex items-center justify-center mb-3`}>
-                      <stat.icon className="text-white w-4 h-4" />
-                    </div>
-                    <p className="text-zinc-500 text-xs font-medium">{stat.label}</p>
-                    <p className="text-xl font-bold mt-1">{stat.value}</p>
-                  </div>
-                ))}
+              {/* KPI Cards with Change Indicators */}
+              <div className="grid grid-cols-4 gap-6 mb-12">
+                <KPICard 
+                  label={t('stats.totalVideos')} 
+                  value={projects.length} 
+                  change="+18.2%" 
+                  trend="up"
+                  icon={Video} 
+                />
+                <KPICard 
+                  label={t('stats.totalViews')} 
+                  value="12.4k" 
+                  change="+24.5%" 
+                  trend="up"
+                  icon={BarChart3} 
+                />
+                <KPICard 
+                  label={t('stats.avgCtr')} 
+                  value="4.2%" 
+                  change="+2.1%" 
+                  trend="up"
+                  icon={Target} 
+                />
+                <KPICard 
+                  label={t('stats.conversions')} 
+                  value="128" 
+                  change="+12.3%" 
+                  trend="up"
+                  icon={CheckCircle2} 
+                />
               </div>
 
-              {/* Projects Grid */}
-              <h3 className="text-xl font-bold mb-6">{t('dashboard.recentProjects')}</h3>
+              <h3 className="text-2xl font-bold mb-6 text-white">{t('dashboard.recentProjects')}</h3>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <Loader2 className="w-8 h-8 animate-spin text-zinc-300" />
+                  <Loader2 className="w-8 h-8 animate-spin text-[#1E6BFF]" />
                 </div>
               ) : projects.length === 0 ? (
-                <div className="bg-white border-2 border-dashed border-zinc-200 rounded-[32px] h-64 flex flex-col items-center justify-center text-zinc-400">
-                  <Video className="w-12 h-12 mb-4 opacity-20" />
-                  <p>{t('dashboard.noVideos')}</p>
-                  <button onClick={() => setActiveTab('create')} className="text-emerald-500 font-bold mt-2 hover:underline">{t('dashboard.createFirst')}</button>
-                </div>
+                <EmptyState onCreateClick={() => {
+                  setActiveTab('create');
+                  setStep(1);
+                }} />
               ) : (
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-3 gap-6">
                   {projects.map((project) => (
                     <motion.div 
                       key={project.id}
-                      whileHover={{ y: -5 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
                       onClick={() => {
                         setCurrentProject(project);
                         setStep(3);
                         setActiveTab('create');
                       }}
-                      className="bg-white rounded-[32px] overflow-hidden border border-zinc-200 shadow-sm group cursor-pointer"
+                      className="cursor-pointer"
                     >
-                      <div className="aspect-[16/9] bg-zinc-100 relative">
-                        {project.scenes[0]?.imageUrl && (
-                          <img src={project.scenes[0].imageUrl} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
-                        )}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                            <Play className="w-6 h-6 text-black fill-current ml-1" />
+                      <GlassCard className="overflow-hidden group hover:shadow-[0_0_40px_rgba(30,107,255,0.3)] transition-all">
+                        <div className="aspect-[16/9] bg-[#0B1220] relative overflow-hidden">
+                          {project.scenes[0]?.imageUrl && (
+                            <img src={project.scenes[0].imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Preview" referrerPolicy="no-referrer" />
+                          )}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl">
+                              <Play className="w-6 h-6 text-black fill-current ml-1" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="p-6">
-                        <h4 className="font-bold text-lg truncate">{project.name}</h4>
-                        <p className="text-zinc-500 text-sm mt-1 line-clamp-2">{project.product_description}</p>
-                        <div className="flex items-center justify-between mt-6">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                            {new Date(project.created_at).toLocaleDateString()}
-                          </span>
-                          <div className="flex gap-2">
-                            <button className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"><Download className="w-4 h-4 text-zinc-600" /></button>
-                            <button className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"><Share2 className="w-4 h-4 text-zinc-600" /></button>
+                        <div className="p-6">
+                          <h4 className="font-bold text-lg truncate text-white">{project.name}</h4>
+                          <p className="text-[#9FB0C3] text-sm mt-2 line-clamp-2">{project.product_description}</p>
+                          <div className="flex items-center justify-between mt-6">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#9FB0C3]">
+                              {new Date(project.created_at).toLocaleDateString()}
+                            </span>
+                            <div className="flex gap-2">
+                              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                                <Download className="w-4 h-4 text-[#9FB0C3]" />
+                              </button>
+                              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                                <Share2 className="w-4 h-4 text-[#9FB0C3]" />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </GlassCard>
                     </motion.div>
                   ))}
                 </div>
@@ -757,23 +564,23 @@ function AppContent() {
               className="max-w-5xl mx-auto"
             >
               <div className="text-center mb-12">
-                <h2 className="text-4xl font-black tracking-tight mb-4">{t('create.title')}</h2>
-                <p className="text-zinc-500 text-lg">{t('create.subtitle')}</p>
+                <h2 className="text-4xl font-black tracking-tight text-white mb-4">{t('create.title')}</h2>
+                <p className="text-[#9FB0C3] text-lg">{t('create.subtitle')}</p>
               </div>
 
               {step === 1 && (
-                <div className="bg-white p-12 rounded-[48px] border border-zinc-200 shadow-xl max-w-2xl mx-auto">
+                <GlassCard className="p-12 max-w-2xl mx-auto">
                   <div className="space-y-6">
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <label className="block text-sm font-bold text-zinc-400 uppercase tracking-widest">{t('create.label')}</label>
+                        <label className="block text-sm font-bold text-[#9FB0C3] uppercase tracking-widest">{t('create.label')}</label>
                         <button 
                           onClick={() => setIsAutomationMode(!isAutomationMode)}
                           className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
-                            isAutomationMode ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-zinc-100 text-zinc-500 border border-zinc-200'
+                            isAutomationMode ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.3)]' : 'bg-white/5 text-[#9FB0C3] border border-white/10'
                           }`}
                         >
-                          <Sparkles className={`w-3 h-3 ${isAutomationMode ? 'text-emerald-500' : 'text-zinc-400'}`} />
+                          <Sparkles className={`w-3 h-3 ${isAutomationMode ? 'text-emerald-400' : 'text-[#9FB0C3]'}`} />
                           {isAutomationMode ? 'Full Automation ON' : 'Full Automation OFF'}
                         </button>
                       </div>
@@ -781,16 +588,16 @@ function AppContent() {
                         value={productInput}
                         onChange={(e) => setProductInput(e.target.value)}
                         placeholder={isAutomationMode ? "Enter a keyword (e.g., 'Wireless Earbuds') to start full automation..." : t('create.placeholder')}
-                        className="w-full h-40 bg-zinc-50 border border-zinc-200 rounded-3xl p-6 text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all resize-none"
+                        className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-lg text-white placeholder:text-[#9FB0C3]/50 focus:ring-2 focus:ring-[#1E6BFF]/50 focus:border-[#1E6BFF]/50 outline-none transition-all resize-none backdrop-blur-xl"
                       />
                     </div>
                     {isAutomationMode && (
-                      <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 space-y-3">
-                        <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest flex items-center gap-2">
+                      <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20 space-y-3 backdrop-blur-xl">
+                        <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4" />
                           Automation Workflow
                         </p>
-                        <ul className="text-[11px] text-emerald-700 space-y-1 font-medium">
+                        <ul className="text-[11px] text-emerald-300 space-y-1 font-medium">
                           <li>• Automatic Wholesale Collection (Best Price)</li>
                           <li>• AI Product Analysis & Viral Scripting</li>
                           <li>• Auto-Registration to 11st, Gmarket, etc.</li>
@@ -802,23 +609,23 @@ function AppContent() {
                     <button
                       disabled={!productInput || isGenerating}
                       onClick={() => setStep(2)}
-                      className={`w-full py-5 rounded-3xl font-bold text-xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 ${
-                        isAutomationMode ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20' : 'bg-zinc-950 text-white hover:bg-zinc-800'
+                      className={`w-full py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 group ${
+                        isAutomationMode ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]' : 'bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white shadow-[0_0_30px_rgba(30,107,255,0.3)] hover:shadow-[0_0_40px_rgba(30,107,255,0.5)]'
                       }`}
                     >
                       {isAutomationMode ? '수집 및 판매 시작' : t('buttons.next')}
-                      <ArrowRight className="w-6 h-6" />
+                      <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
-                </div>
+                </GlassCard>
               )}
 
               {step === 2 && (
                 <div className="grid grid-cols-2 gap-12 items-start">
                   <div className="space-y-8">
-                    <div className="bg-white p-8 rounded-[40px] border border-zinc-200 shadow-lg">
-                      <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                        <Sparkles className="text-emerald-500 w-6 h-6" />
+                    <GlassCard className="p-8">
+                      <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white">
+                        <Sparkles className="text-[#1E6BFF] w-6 h-6" />
                         {t('create.engine')}
                       </h3>
                       
@@ -828,13 +635,13 @@ function AppContent() {
                             key={i}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="flex items-start gap-3 text-sm font-medium text-zinc-600"
+                            className="flex items-start gap-3 text-sm font-medium text-[#9FB0C3]"
                           >
                             <div className="mt-1">
                               {log.startsWith('✅') ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : 
-                               log.startsWith('🎬') ? <Video className="w-4 h-4 text-blue-500" /> :
+                               log.startsWith('🎬') ? <Video className="w-4 h-4 text-[#1E6BFF]" /> :
                                log.startsWith('❌') ? <AlertCircle className="w-4 h-4 text-red-500" /> :
-                               <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />}
+                               <Loader2 className="w-4 h-4 animate-spin text-[#1E6BFF]" />}
                             </div>
                             <span>{log.replace(/^[✅🎬❌🔍✍️🎨]\s*/, '')}</span>
                           </motion.div>
@@ -843,11 +650,11 @@ function AppContent() {
 
                       {!isGenerating && generationLogs.length === 0 && (
                         <div className="text-center py-12">
-                          <p className="text-zinc-400 mb-8">{t('create.ready')}</p>
+                          <p className="text-[#9FB0C3] mb-8">{t('create.ready')}</p>
                           <button
                             onClick={handleGenerate}
-                            className={`px-10 py-5 rounded-3xl font-bold text-xl shadow-lg transition-all hover:scale-105 ${
-                              isAutomationMode ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-zinc-950 text-white shadow-zinc-950/10'
+                            className={`px-10 py-5 rounded-2xl font-bold text-xl transition-all hover:scale-105 group ${
+                              isAutomationMode ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white shadow-[0_0_30px_rgba(30,107,255,0.3)]'
                             }`}
                           >
                             {isAutomationMode ? '수집 및 판매 자동화 실행' : t('buttons.start')}
@@ -856,21 +663,21 @@ function AppContent() {
                       )}
 
                       {isGenerating && (
-                        <div className="mt-12 p-6 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4">
-                          <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
-                          <p className="text-emerald-700 font-bold">{t('create.working')}</p>
+                        <div className="mt-12 p-6 bg-[#1E6BFF]/10 rounded-2xl border border-[#1E6BFF]/20 flex items-center gap-4 backdrop-blur-xl">
+                          <Loader2 className="w-6 h-6 animate-spin text-[#1E6BFF]" />
+                          <p className="text-[#1E6BFF] font-bold">{t('create.working')}</p>
                         </div>
                       )}
-                    </div>
+                    </GlassCard>
                   </div>
 
                   <div className="sticky top-10">
-                    <div className="bg-zinc-200 aspect-[9/16] rounded-[40px] flex items-center justify-center border-4 border-white shadow-2xl overflow-hidden">
+                    <GlassCard className="aspect-[9/16] rounded-[40px] flex items-center justify-center overflow-hidden">
                       <div className="text-center p-10">
-                        <Video className="w-16 h-16 text-zinc-400 mx-auto mb-4 opacity-20" />
-                        <p className="text-zinc-400 font-medium">{t('create.preview')}</p>
+                        <Video className="w-16 h-16 text-[#1E6BFF] mx-auto mb-4 opacity-30" />
+                        <p className="text-[#9FB0C3] font-medium">{t('create.preview')}</p>
                       </div>
-                    </div>
+                    </GlassCard>
                   </div>
                 </div>
               )}
@@ -878,37 +685,37 @@ function AppContent() {
               {step === 3 && currentProject.scenes && (
                 <div className="grid grid-cols-2 gap-12 items-start">
                   <div className="space-y-8">
-                    <div className="bg-white p-8 rounded-[40px] border border-zinc-200 shadow-lg">
+                    <GlassCard className="p-8">
                       <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-2xl font-bold">{t('create.complete')}</h3>
-                        <div className="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Success</div>
+                        <h3 className="text-2xl font-bold text-white">{t('create.complete')}</h3>
+                        <div className="bg-emerald-500/20 text-emerald-400 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-emerald-500/30">Success</div>
                       </div>
 
                       <div className="space-y-6">
                         <div>
-                          <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">{t('create.projectName')}</label>
-                          <p className="text-xl font-bold">{currentProject.name}</p>
+                          <label className="block text-[10px] font-bold text-[#9FB0C3] uppercase tracking-widest mb-2">{t('create.projectName')}</label>
+                          <p className="text-xl font-bold text-white">{currentProject.name}</p>
                         </div>
                         
                         <div>
-                          <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">{t('create.scriptLabel')}</label>
-                          <div className="bg-zinc-50 p-6 rounded-2xl border border-zinc-100 space-y-4">
-                            <p><span className="text-emerald-600 font-bold">Hook:</span> {currentProject.script?.hook}</p>
-                            <p><span className="text-blue-600 font-bold">Problem:</span> {currentProject.script?.problem}</p>
-                            <p><span className="text-purple-600 font-bold">Solution:</span> {currentProject.script?.solution}</p>
-                            <p><span className="text-amber-600 font-bold">CTA:</span> {currentProject.script?.cta}</p>
+                          <label className="block text-[10px] font-bold text-[#9FB0C3] uppercase tracking-widest mb-2">{t('create.scriptLabel')}</label>
+                          <div className="bg-white/5 p-6 rounded-2xl border border-white/10 space-y-4 backdrop-blur-xl">
+                            <p className="text-[#9FB0C3]"><span className="text-emerald-400 font-bold">Hook:</span> {currentProject.script?.hook}</p>
+                            <p className="text-[#9FB0C3]"><span className="text-[#1E6BFF] font-bold">Problem:</span> {currentProject.script?.problem}</p>
+                            <p className="text-[#9FB0C3]"><span className="text-purple-400 font-bold">Solution:</span> {currentProject.script?.solution}</p>
+                            <p className="text-[#9FB0C3]"><span className="text-amber-400 font-bold">CTA:</span> {currentProject.script?.cta}</p>
                           </div>
                         </div>
 
                         <div className="flex gap-4">
-                          <button className="flex-1 bg-zinc-950 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all">
+                          <button className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all">
                             <Download className="w-5 h-5" />
                             {t('buttons.download')}
                           </button>
                           <button 
                             onClick={handleSocialUpload}
                             disabled={isUploading}
-                            className="flex-1 bg-[#1428A0] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#0d1b6e] transition-all disabled:opacity-50"
+                            className="flex-1 bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                           >
                             {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
                             {isUploading ? t('buttons.uploading') : t('buttons.uploadAll')}
@@ -917,17 +724,17 @@ function AppContent() {
                         <button 
                           onClick={handleChinaUpload}
                           disabled={isUploading}
-                          className="w-full mt-4 bg-red-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition-all disabled:opacity-50"
+                          className="w-full mt-4 bg-gradient-to-r from-red-500 to-red-600 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                         >
                           {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Globe className="w-5 h-5" />}
                           {isUploading ? t('buttons.uploading') : t('buttons.uploadChina')}
                         </button>
                       </div>
-                    </div>
+                    </GlassCard>
 
                     <button 
                       onClick={() => { setStep(1); setProductInput(''); setGenerationLogs([]); setActiveTab('dashboard'); }}
-                      className="w-full py-4 text-zinc-500 font-bold hover:text-zinc-800 transition-colors"
+                      className="w-full py-4 text-[#9FB0C3] font-bold hover:text-white transition-colors"
                     >
                       {t('buttons.another')}
                     </button>
@@ -940,14 +747,89 @@ function AppContent() {
               )}
             </motion.div>
           )}
+
           {activeTab === 'analytics' && (
             <motion.div
               key="analytics"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
             >
-              <AnalyticsView />
+              <div className="flex justify-between items-end">
+                <div>
+                  <h2 className="text-3xl font-black tracking-tight text-white mb-2">{t('analytics.title')}</h2>
+                  <p className="text-[#9FB0C3] text-base">{t('analytics.subtitle')}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-6">
+                <div className="col-span-2">
+                  <GlassCard className="p-8">
+                    <h3 className="text-lg font-bold mb-6 text-white">{t('analytics.viewsOverTime')}</h3>
+                    <div className="h-[300px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={[
+                          { name: 'Mon', views: 4000 },
+                          { name: 'Tue', views: 3000 },
+                          { name: 'Wed', views: 2000 },
+                          { name: 'Thu', views: 2780 },
+                          { name: 'Fri', views: 1890 },
+                          { name: 'Sat', views: 2390 },
+                          { name: 'Sun', views: 3490 },
+                        ]}>
+                          <defs>
+                            <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#1E6BFF" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#1E6BFF" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9FB0C3', fontSize: 12}} dy={10} />
+                          <YAxis axisLine={false} tickLine={false} tick={{fill: '#9FB0C3', fontSize: 12}} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'rgba(11,18,32,0.95)', 
+                              border: '1px solid rgba(255,255,255,0.1)', 
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(12px)'
+                            }}
+                            labelStyle={{ color: '#E6EDF3' }}
+                          />
+                          <Area type="monotone" dataKey="views" stroke="#1E6BFF" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </GlassCard>
+                </div>
+
+                <GlassCard className="p-8">
+                  <h3 className="text-lg font-bold mb-6 text-white">{t('analytics.platformDistribution')}</h3>
+                  <div className="space-y-6">
+                    {[
+                      { name: 'TikTok', value: 45, color: '#FF0050' },
+                      { name: 'Instagram', value: 30, color: '#E1306C' },
+                      { name: 'YouTube', value: 15, color: '#FF0000' },
+                      { name: 'Facebook', value: 10, color: '#1877F2' },
+                    ].map((platform) => (
+                      <div key={platform.name} className="space-y-2">
+                        <div className="flex justify-between text-sm font-medium text-white">
+                          <span>{platform.name}</span>
+                          <span className="text-[#9FB0C3]">{platform.value}%</span>
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden backdrop-blur-xl">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${platform.value}%` }}
+                            className="h-full rounded-full"
+                            style={{ backgroundColor: platform.color }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </GlassCard>
+              </div>
             </motion.div>
           )}
 
@@ -957,8 +839,29 @@ function AppContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              className="max-w-4xl space-y-8"
             >
-              <SettingsView />
+              <div>
+                <h2 className="text-3xl font-black tracking-tight text-white mb-2">{t('settings.title')}</h2>
+                <p className="text-[#9FB0C3] text-base">{t('settings.subtitle')}</p>
+              </div>
+
+              <GlassCard className="p-8">
+                <h3 className="text-xl font-bold mb-6 text-white">Profile Settings</h3>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold text-[#9FB0C3] uppercase tracking-widest mb-2">Full Name</label>
+                    <input type="text" defaultValue="Marketer Mark" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#1E6BFF]/50 backdrop-blur-xl" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#9FB0C3] uppercase tracking-widest mb-2">Email Address</label>
+                    <input type="email" defaultValue="mark@adbrain.ai" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#1E6BFF]/50 backdrop-blur-xl" />
+                  </div>
+                  <button className="bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white px-8 py-3 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] transition-all">
+                    {t('settings.save')}
+                  </button>
+                </div>
+              </GlassCard>
             </motion.div>
           )}
         </AnimatePresence>
@@ -966,5 +869,13 @@ function AppContent() {
       <ChatWidget />
       <AIWidget />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
