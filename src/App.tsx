@@ -119,30 +119,34 @@ const KPICard = ({ label, value, change, icon: Icon, trend }: any) => (
   </GlassCard>
 );
 
-const EmptyState = ({ onCreateClick }: { onCreateClick: () => void }) => (
-  <GlassCard className="h-[500px] flex flex-col items-center justify-center text-center p-12">
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="w-24 h-24 bg-gradient-to-br from-[#1E6BFF]/20 to-[#4C8DFF]/10 rounded-full flex items-center justify-center mb-8 mx-auto shadow-[0_0_40px_rgba(30,107,255,0.3)]">
-        <Video className="w-12 h-12 text-[#1E6BFF]" />
-      </div>
-      <h3 className="text-2xl font-bold text-white mb-4">{t('dashboard.emptyTitle')}</h3>
-      <p className="text-[#9FB0C3] text-lg mb-3">{t('dashboard.emptySubtitle1')}</p>
-      <p className="text-[#9FB0C3] mb-8">{t('dashboard.emptySubtitle2')}</p>
-      <button 
-        onClick={onCreateClick}
-        className="bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white px-8 py-4 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] transition-all flex items-center gap-2 mx-auto group"
+const EmptyState = ({ onCreateClick }: { onCreateClick: () => void }) => {
+  const { t } = useLanguage();
+  
+  return (
+    <GlassCard className="h-[500px] flex flex-col items-center justify-center text-center p-12">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5 }}
       >
-        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-        {t('dashboard.emptyButton')}
-        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-      </button>
-    </motion.div>
-  </GlassCard>
-);
+        <div className="w-24 h-24 bg-gradient-to-br from-[#1E6BFF]/20 to-[#4C8DFF]/10 rounded-full flex items-center justify-center mb-8 mx-auto shadow-[0_0_40px_rgba(30,107,255,0.3)]">
+          <Video className="w-12 h-12 text-[#1E6BFF]" />
+        </div>
+        <h3 className="text-2xl font-bold text-white mb-4">{t('dashboard.emptyTitle')}</h3>
+        <p className="text-[#9FB0C3] text-lg mb-3">{t('dashboard.emptySubtitle1')}</p>
+        <p className="text-[#9FB0C3] mb-8">{t('dashboard.emptySubtitle2')}</p>
+        <button 
+          onClick={onCreateClick}
+          className="bg-gradient-to-r from-[#1E6BFF] to-[#4C8DFF] text-white px-8 py-4 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(30,107,255,0.5)] transition-all flex items-center gap-2 mx-auto group"
+        >
+          <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+          {t('dashboard.emptyButton')}
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </motion.div>
+    </GlassCard>
+  );
+};
 
 const VideoPreview = ({ scenes }: { scenes: Scene[] }) => {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
